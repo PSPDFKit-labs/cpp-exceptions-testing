@@ -3,58 +3,89 @@
 
 #include <benchmark/benchmark.h>
 
-static const int TEST_ITERATIONS = 1000;
+namespace {
 
-void exitWithException() {
-    for (int i{0}; i < 10; ++i) {
+void exitWithIntException() {
+    for (int i{0}; i < 5; ++i) {
+        throw -2;
+    }
+}
+
+void exitWithStdException() {
+    for (int i{0}; i < 5; ++i) {
         throw std::runtime_error("Exception!");
     }
 }
 
 void exitWithReturn() {
-    for (int i{0}; i < 10; ++i) {
+    for (int i{0}; i < 5; ++i) {
         return;
     }
 }
 
 void exitWithBreak() {
-    for (int i{0}; i < 10; ++i) {
+    for (int i{0}; i < 5; ++i) {
         break;
     }
 }
 
-
-auto IntToStringConversionTest(int count)
-{
-    std::vector<int> inputNumbers(count);
-    std::vector<std::string> outNumbers;
-
-    iota(begin(inputNumbers), end(inputNumbers), 0);
-    for (auto &num : inputNumbers)
-        outNumbers.push_back(to_string(num));
-
-    return outNumbers;
+int exitWithErrorCode() {
+    for (int i{0}; i < 5; ++i) {
+        return -1;
+    }
+    return 0;
 }
 
-void exitWithException(benchmark::State& state) {
-    while (state.KeepRunning()) {
-        benchmark::DoNotOptimize(
-                IntToStringConversionTest(state.range_x())
-        );
+
+
+void BM_exitWithStdException(benchmark::State& state) {
+    for (auto _ : state) {
+        try {
+            exitWithStdException();
+        } catch (const std::runtime_error &ex) {
+            // caught!  carry on next iteration.
+        }
     }
 }
-BENCHMARK(IntToString)->Arg(TEST_ITERATIONS);
-
-void DoubleToString(benchmark::State& state) {
-    while (state.KeepRunning()) {
-        benchmark::DoNotOptimize(
-                DoubleToStringConversionTest(state.range_x())
-        );
+void BM_exitWithIntException(benchmark::State& state) {
+    for (auto _ : state) {
+        try {
+            exitWithIntException();
+        } catch (int ex) {
+            // caught!  carry on next iteration.
+        }
     }
 }
-BENCHMARK(DoubleToString)->Arg(TEST_ITERATIONS);
 
-BENCHMARK_MAIN()
+void BM_exitWithReturn(benchmark::State& state) {
+    for (auto _ : state) {
+        exitWithReturn();
+    }
+}
+
+void BM_exitWithBreak(benchmark::State& state) {
+    for (auto _ : state) {
+        exitWithBreak();
+    }
+}
+
+void BM_exitWithErrorCode(benchmark::State& state) {
+    for (auto _ : state) {
+        auto err = exitWithErrorCode();
+        if (err < 0) {
+            // handle_error()
+        }
+    }
+}
+
+}
 
 
+BENCHMARK(BM_exitWithStdException);
+BENCHMARK(BM_exitWithIntException);
+BENCHMARK(BM_exitWithReturn);
+BENCHMARK(BM_exitWithBreak);
+BENCHMARK(BM_exitWithErrorCode);
+
+BENCHMARK_MAIN();
 
