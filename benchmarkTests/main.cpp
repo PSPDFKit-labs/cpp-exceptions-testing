@@ -1,42 +1,12 @@
-#include <iostream>
-#include <exception>
+#include "FunctionsToTest.hpp"
 
+#include <iostream>
+#include <stdexcept>
 #include <benchmark/benchmark.h>
 
+#define BLACKHOLE(expr) do { (void)(expr); } while (0)
+
 namespace {
-
-void exitWithIntException() {
-    for (int i{0}; i < 5; ++i) {
-        throw -2;
-    }
-}
-
-void exitWithStdException() {
-    for (int i{0}; i < 5; ++i) {
-        throw std::runtime_error("Exception!");
-    }
-}
-
-void exitWithReturn() {
-    for (int i{0}; i < 5; ++i) {
-        return;
-    }
-}
-
-void exitWithBreak() {
-    for (int i{0}; i < 5; ++i) {
-        break;
-    }
-}
-
-int exitWithErrorCode() {
-    for (int i{0}; i < 5; ++i) {
-        return -1;
-    }
-    return 0;
-}
-
-
 
 void BM_exitWithStdException(benchmark::State& state) {
     for (auto _ : state) {
@@ -44,6 +14,7 @@ void BM_exitWithStdException(benchmark::State& state) {
             exitWithStdException();
         } catch (const std::runtime_error &ex) {
             // caught!  carry on next iteration.
+            BLACKHOLE(ex);
         }
     }
 }
@@ -53,27 +24,26 @@ void BM_exitWithIntException(benchmark::State& state) {
             exitWithIntException();
         } catch (int ex) {
             // caught!  carry on next iteration.
+            BLACKHOLE(ex);
         }
     }
 }
-
 void BM_exitWithReturn(benchmark::State& state) {
     for (auto _ : state) {
         exitWithReturn();
     }
 }
-
 void BM_exitWithBreak(benchmark::State& state) {
     for (auto _ : state) {
         exitWithBreak();
     }
 }
-
 void BM_exitWithErrorCode(benchmark::State& state) {
     for (auto _ : state) {
         auto err = exitWithErrorCode();
         if (err < 0) {
             // handle_error()
+            BLACKHOLE(err);
         }
     }
 }
