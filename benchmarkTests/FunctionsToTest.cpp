@@ -1,7 +1,3 @@
-//
-// Created by Amit on 2019-10-04.
-//
-
 #include "FunctionsToTest.hpp"
 #include <stdexcept>
 
