@@ -33,11 +33,6 @@ void BM_exitWithReturn(benchmark::State& state) {
         exitWithReturn();
     }
 }
-void BM_exitWithBreak(benchmark::State& state) {
-    for (auto _ : state) {
-        exitWithBreak();
-    }
-}
 void BM_exitWithErrorCode(benchmark::State& state) {
     for (auto _ : state) {
         auto err = exitWithErrorCode();
@@ -54,7 +49,6 @@ void BM_exitWithErrorCode(benchmark::State& state) {
 BENCHMARK(BM_exitWithStdException);
 BENCHMARK(BM_exitWithIntException);
 BENCHMARK(BM_exitWithReturn);
-BENCHMARK(BM_exitWithBreak);
 BENCHMARK(BM_exitWithErrorCode);
 
 BENCHMARK_MAIN();
